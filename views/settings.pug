@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  -user = user || {}
+  script(src="/js/check-perms.js")
+  div(id="profilePicModal", class="modal")
+    div(class="modal-content")
+      div(class="modal-header")
+        span(class="close", id="profilePicClose") &times;
+        h2 Modal Header
+      div(class="modal-body")
+        p Some text in the modal body
+        p Some more text...
+      div(class="modal-footer")
+        h3 Modal footer
+  h1 #{user.name}'s Settings
+  img(class="profile-picture shadow", src=user.photo)
+  div(class="setting-change-section")
+    p(style="font-size: 22px") This is your profile picture. Change?
+    input(type="file", accept="image/*",id="photo-change", class="change btn")
+  button(class="btn", onclick="submitSettingsData()") Save Settings
+  script(src="/js/setSettingsButtons.js")

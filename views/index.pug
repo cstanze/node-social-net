@@ -1,0 +1,26 @@
+extends layout
+
+block content
+
+  
+  if registrations.length
+    table.listing-table.table-dark.table-striped
+      tr
+        th User ID
+        th Name
+        th Username
+        th Email
+        th Password
+        th Register ID
+        th JWT Token
+      each registration in registrations
+          tr
+            td= registration._id
+            td= registration.name
+            td= registration.username
+            td= registration.email
+            td= registration.password
+            td= registration.registerId
+            td= registration.jwtToken
+  else
+    p No registrations yet :(

@@ -1,0 +1,31 @@
+extends layout
+block content
+  -user = user || {}
+  input(id="userId-login" type="hidden" value=user.registerId)
+  input(id="userId-login2" type="hidden" value=user._id)
+  script(src="/js/get-userId-login.js")
+  script(src="/js/get-userId.js")
+  script(src="/js/check-home-status.js")
+  div(class="home-header")
+    h1(class="page-title") Home
+    button(class="system-button logout") Log Out
+    button(class="system-button new-post") New Post
+  script(src="/js/new-post-linker.js")
+  script(src="/js/logout-linker.js")
+  -posts = posts || {}
+  for post in posts
+    -post = post || {}
+    if post
+      div(class="post")
+        h1(class="post-title")=post.title
+        a(
+          class="author-name" 
+          href=`/user/profile/${post._author}`
+        )= post._authorName
+        img(
+          class="image-post shadow"
+          src=post.photo
+        )
+        p(class="post-subtitle")= post.body
+    else
+      p No Posts Here!

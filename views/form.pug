@@ -1,0 +1,40 @@
+extends layout
+
+block content
+	-data = data || {}
+
+	if errors
+		ul.errors
+			for error in errors
+				li= error.msg
+	script(src="/js/check-login.js")
+	h1(class="form-registration") Sign Up
+	form(action="." method="POST" class="form-registration")
+		label(for="name") Name:
+		input(
+			type="text"
+			id="name"
+			name="name"
+			class="form-control"
+			value=data.name
+		)
+
+		label(for="email") Email:
+		input(
+			type="email"
+			id="email"
+			name="email"
+			class="form-control"
+			value=data.email
+		)
+		
+		label(for="password") Password:
+		input(
+			type="password"
+			id="password"
+			name="password"
+			class="form-control"
+			value=data.userPass
+		)
+		input(type="submit" value="Submit" class="btn btn-lg btn-primary btn-block")
+	a(href="/login", class="form-registration") Already Have An Account? Login

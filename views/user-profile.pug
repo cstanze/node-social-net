@@ -1,0 +1,15 @@
+extends layout
+
+block content
+	-user = user || {}
+	if user
+		div(class="banner-wrapper")
+			img(class="inner-banner", src=user.userBanner)
+		div(class="overlay")
+			img(class="shadow profile-picture", src=user.photo)
+			h1(class="profile-indicator") #{user.name}'s Profile
+			p(class="profile-bio")= user.bio
+		script(src="/js/grab-color-image.js")
+		script(src="/js/get-banner.js")
+	else
+		p Looks like this user doesn't exist or deleted their account. Sorry!
