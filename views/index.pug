@@ -12,7 +12,6 @@ block content
         th Email
         th Password
         th Register ID
-        th JWT Token
       each registration in registrations
           tr
             td= registration._id
@@ -21,6 +20,5 @@ block content
             td= registration.email
             td= registration.password
             td= registration.registerId
-            td= registration.jwtToken
   else
     p No registrations yet :(

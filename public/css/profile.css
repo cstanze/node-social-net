@@ -11,6 +11,27 @@ html, body {
   padding-bottom: 10px !important;
 }
 
+nav {
+	background: #8F6F5A;
+	height: 75px;
+	margin: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	width: 100%;
+	position: fixed;
+}
+
+.profile-links:visited {
+	color: white;
+	text-decoration: none;
+}
+
+.profile-links:link {
+	color: white;
+	text-decoration: none;
+}
+
 .overlay {
   margin-top: -100px;
   z-index: 1000;

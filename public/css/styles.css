@@ -23,8 +23,14 @@ body {
 
 .btn-primary:hover {
   color: #fff;
-  background-color: #8F6F5A;
-  border-color: #80624F;
+  background-color: #8F6F5A !important;
+  border-color: #80624F !important;
+}
+
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #8F6F5A !important;
+  border-color: #80624F !important;
 }
 
 .form-registration {

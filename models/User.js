@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+let uniqueValidator = require('mongoose-unique-validator');
 
 let userSchema = new mongoose.Schema({
   name: {
@@ -9,15 +10,16 @@ let userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
-    unique: true
   },
   bio: {
     type: String
   },
   username: {
     type: String,
-    index: true
+    index: true,
+    trim: true,
+    required: true,
+    unique: true
   },
   posts : [{
     type: mongoose.Schema.Types.ObjectId,
@@ -39,12 +41,11 @@ userSchema.createUser = (newUser, callback) => {
 };
 
 userSchema.createPost = (username, newPost, callback) => {
-  Author.findOne({ username: username }).then((author) => {
+  User.findOne({ username: username }).then((author) => {
     newPost._author = author._id
     author.posts.push(newPost);
     newPost.save().then((err, auth) => {
-      if (err)
-      throw err;
+      if (err) throw err;
 
       author.save(callback);
     })
@@ -62,4 +63,5 @@ userSchema.methods.getAuthorByPostTitle = (postTitle, callback) => {
 
 let User = mongoose.model('User', userSchema);
 
+userSchema.plugin(uniqueValidator);
 module.exports = User;

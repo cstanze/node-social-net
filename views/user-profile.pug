@@ -3,6 +3,11 @@ extends layout
 block content
 	-user = user || {}
 	if user
+		nav
+			a(href="/" class="profile-links") Back
+			a(href="#" class="profile-links" disabled) 
+			a(href="#" class="profile-links" disabled) 
+			a(href="/new" class="profile-links") New Post
 		div(class="banner-wrapper")
 			img(class="inner-banner", src=user.userBanner)
 		div(class="overlay")

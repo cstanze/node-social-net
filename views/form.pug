@@ -2,14 +2,13 @@ extends layout
 
 block content
 	-data = data || {}
-
+	h1(class="form-registration") Sign Up
 	if errors
 		ul.errors
 			for error in errors
 				li= error.msg
 	script(src="/js/check-login.js")
-	h1(class="form-registration") Sign Up
-	form(action="." method="POST" class="form-registration")
+	form(action="/signup" method="POST" class="form-registration")
 		label(for="name") Name:
 		input(
 			type="text"

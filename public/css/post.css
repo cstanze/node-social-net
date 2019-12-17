@@ -2,6 +2,10 @@
   display: inline-block;
 }
 
+.logout {
+  margin-left: 56% !important;
+}
+
 @media only screen and (max-width : 400px) {
   html, body {
     margin-top: 100px;

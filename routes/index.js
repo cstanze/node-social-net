@@ -14,7 +14,8 @@ const basic = auth.basic({
 const postUpload = multer({ dest: 'public/images/posts'});
 const profilePicUpload = multer({ dest: 'public/images/profile_pics' });
 const profileBannerUpload = multer({ dest: 'public/images/user_banners' });
-
+const base64ToImage = require('base64-to-image');
+const uniqid = require('uniqid');
 const router = express.Router();
 const Registration = mongoose.model('Registration')
 const Post = mongoose.model('Post')
@@ -34,11 +35,11 @@ router.get('/registrations', auth.connect(basic), (req, res) => {
 	});
 })
 
-router.get('/', (req, res) => {
+router.get('/signup', (req, res) => {
 	res.render('form', { title: 'Sign Up' });
 });
 
-router.get('/home', (req, res) => {
+router.get('/', (req, res) => {
 	Post.find({ universalQuery: "uni-sec91" }, (err, posts) => {
 		if(err) throw err;
 		res.render('home', { title: "Home", posts: posts.reverse() })
@@ -149,13 +150,11 @@ router.post('/new', postUpload.single('photo'),(req, res) => {
 				photo: "/images/posts/"+req.file.filename,
 				tags: ["new", "post"],
 				_author: currentUser,
-				_authorName: currentUser.name
+				_authorName: currentUser.username
 			});
 			post.save().then((err, currentPost) => {
 				// FIXME: Fix the posts array in user object (route: new)
-				User.findOneAndUpdate({ _id: req.body.userId }, { $push: { posts:  currentPost }}, (err, success) => {
-					if(err) throw err;
-				})
+				currentUser.posts.push(currentPost);
 				Post.find({ universalQuery: "uni-sec91" }, (err, posts) => {
 					res.render('home', { title: `${currentUser.name}'s Home`, errors: [], posts })
 				})
@@ -168,7 +167,16 @@ router.post('/new', postUpload.single('photo'),(req, res) => {
 	})
 })
 
-router.post('/home',[
+router.post('/settings/photo/:id', (req, res) => {
+	let userId = req.params.id
+	User.findOne({ _id: userId }, (err, user) => {
+		if (err) throw err
+		console.log(req.body)
+		user.photo = base64ToImage(req.body.baseImage, profilePicDirectory, {'fileName': uniqid(), 'type':'png'});
+	})
+})
+
+router.post('/',[
 	body('bio').isLength({ max: 200 }).withMessage("Bio can't be more than 200 characters"),
 	body('registerId').isLength({ min: 1 }).withMessage("Unknown Error: Please Try Again Later"),
 	body('username').isLength({ min: 1 }).withMessage("Username is required")
@@ -189,25 +197,59 @@ router.post('/home',[
 			console.log(registeredUser)
 			const currentUser = new User({
 				name: registeredUser.name,
-				photo: "https://idyllwildarts.org/wp-content/uploads/2016/09/blank-profile-picture.jpg",
+				photo: "https://alternative.me/profilepictures/default.png",
+				userBanner: '/images/user_banners/defaultUserBanner.jpg',
 				email: registeredUser.email,
 				bio: bio,
 				username: req.body.username,
 				password: registeredUser.password,
 				registerId: registerId
 			})
+			console.log(currentUser)
 			currentUser.save((err, user) => {
-				if (err) throw err;
-				console.log(user)
-				Post.find({ universalQuery: "uni-sec91" }, (err, posts) => {
-					if(err) throw err;
-					res.render('home', { title: "Home", posts })
-				})
+				if(err) {
+					console.log(err)
+					if(err.errors.username.kind == 'unique' && err.errors.username.message.includes('\`username\` to be unique')) {
+						res.render('finish', { title: "Sign Up", errors: [{msg: "Username already exists"}], data: req.body })
+					} else {
+						res.render('finish', { title: "Failed", errorMsgs: ["Internal Server Error! Exit Immediately"]})
+					}
+				} else {
+					Post.find({ universalQuery: "uni-sec91" }, (err, posts) => {
+						if(err) throw err;
+						res.render('home', { title: "Home", posts })
+					})
+				}
 			})
 		})
 	} else {
-		console.log(errors.array())
 		res.render('finish', { title: "Almost Done!", errorMsgs: errors.array(), data: req.body})
+	}
+})
+
+router.post('/signup',[
+	body('name').isLength({ min: 1 }).withMessage('Please enter a name'),
+	body('email').isLength({ min: 1 }).isEmail().withMessage('Please enter a valid email'),
+	body('password').isLength({ min: 1 }).withMessage('Please enter a password')
+], (req, res) => {
+	const errors = validationResult(req);
+	if(errors.isEmpty()) {
+		const registration = new Registration(req.body);
+		registration.save().then((registration) => {
+			res.render('finish', { title: "Almost Done!", errorMsgs: [], data: {registerId: registration._id}})
+		}).catch((err) => {
+			if(err.code == 11000) {
+				res.render('form', { title: "Sign Up", errors: [{msg: "Email already exists"}], data: req.body })
+			} else {
+				res.render('finish', { title: "Failed", errorMsgs: ["Internal Server Error! Exit Immediately"]})
+			}
+		})
+	} else {
+		res.render('form', {
+			title: "Sign Up",
+			errors: errors.array(),
+			data: req.body,
+		});
 	}
 })
 
@@ -235,13 +277,27 @@ router.get('/user/username/:userName', protectCid, (req, res) => {
 	})
 })
 
-router.get('/user/profile/:userId', (req, res) => {
-	const userId = req.params.userId;
-	User.findOne({ _id: userId }, (err, user) => {
-		if(err) throw err;
-		// TODO: Finish the profile page in user-profile.pug
-		res.render('user-profile', { title: `${user.name} Profile`, user });
+router.get('/profile/name/:nameOfUser', (req, res) => {
+	const nameOfUser = req.params.nameOfUser
+	console.log(nameOfUser)
+	User.findOne({ name: nameOfUser }, (err, user) => {
+		if (err) throw err;
+		res.render('user-profile', { title: `${user.name} Profile`, user })
 	})
+})
+
+router.get('/profile/id/:userId', (req, res) => {
+	const userId = req.params.userId;
+	console.log(userId)
+	if (userId.match(/^[0-9a-fA-F]{24}$/)) {
+		User.findOne({ _id: userId }, (err, user) => {
+			// TODO: Fix throw err to error array or error message (Do same for above)
+			if(err) throw err;
+			res.render('user-profile', { title: `${user.name} Profile`, user })
+		})
+	} else {
+		res.render('home', { title: "Home" })
+	}
 })
 
 router.get('/user/registerId/:registerId', protectCid, (req, res) => {
@@ -250,34 +306,6 @@ router.get('/user/registerId/:registerId', protectCid, (req, res) => {
 		if (err) throw err;
 		res.json(user)
 	})
-})
-
-router.post('/',[
-	body('name').isLength({ min: 1 }).withMessage('Please enter a name'),
-	body('email').isLength({ min: 1 }).isEmail().withMessage('Please enter a valid email'),
-	body('password').isLength({ min: 1 }).withMessage('Please enter a password')
-], (req, res) => {
-	const errors = validationResult(req);
-	if(errors.isEmpty()) {
-		const registration = new Registration(req.body);
-		registration.save().then((err, registration) => {
-			if(registration) {
-				res.render('finish', { title: "Almost Done!", errorMsgs: [], data: {registerId: registration._id}});
-			} else {
-				if(err.errmsg.startsWith("E11000")) {
-					res.render('form', { title: "Sign Up", errors: [{msg: "Email already exists"}], data: req.body });
-				} else {
-					res.render('finish', { title: "Failed", errorMsgs: ["Internal Server Error! Exit Immediately"]})
-				}
-			}
-		})
-	} else {
-		res.render('form', {
-			title: "Sign Up",
-			errors: errors.array(),
-			data: req.body,
-		});
-	}
 })
 
 function protectCid(req, res, next) {

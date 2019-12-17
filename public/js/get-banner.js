@@ -1,5 +1,6 @@
 let xhr = new XMLHttpRequest();
-let urlUserId = window.location.href.replace(window.location.origin, "").replace('/user/profile/', "")
+let urlUserId = window.location.href.replace(window.location.origin, "").replace('/profile/id/', "")
+console.log(urlUserId)
 xhr.open("GET", `/user/id/${urlUserId}`)
 xhr.setRequestHeader("authid", "_ax791");
 xhr.send()

@@ -3,5 +3,5 @@ if(urlUserId == localStorage.getItem('userId')) {
   console.log("Permissions Check Out... Continue.")
 } else {
   console.log("Permission Insufficient... Redirecting...")
-  window.location = window.location.href + '/home'
+  window.location = window.location.origin + '/'
 }

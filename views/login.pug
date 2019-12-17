@@ -2,13 +2,12 @@ extends layout
 
 block content
 	-data = data || {}
-
+	h1(class="form-registration") Log In
 	if errors
 		ul.errors
 			for error in errors
 				li= error.msg
 	script(src="/js/check-login.js")
-	h1(class="form-registration") Log In
 	form(action="/auth/user" method="POST" class="form-registration")
 		label(for="email") Email:
 		input(
@@ -28,4 +27,4 @@ block content
 			value=data.userPass
 		)
 		input(type="submit" value="Submit" class="btn btn-lg btn-primary btn-block")
-	a(href="/", class="form-registration") Don't Have An Account? Sign Up
+	a(href="/signup", class="form-registration") Don't Have An Account? Sign Up

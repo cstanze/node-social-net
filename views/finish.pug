@@ -1,13 +1,12 @@
 extends layout
 block content
 	-data = data || {}
-		
+	h1(class="form-registration") Almost Done!
 		if errors
 			ul.errors
 				for error in errors
 					li= error.msg
-	h1(class="form-registration") Almost Done!
-	form(action="/home" method="POST" class="form-registration")
+	form(action="/" method="POST" class="form-registration")
 		label(for="username") Username:
 		input(
 			type="text"
@@ -30,6 +29,16 @@ block content
 			class="form-control"
 			value=data.registerId
 		)
-		input(type="submit" value="Finish" class="btn btn-lg btn-primary btn-block")
+		label(for="agreeTos") Agree to the 
+		a(href="/tos") Terms Of Service
+		input(
+			type="checkbox"
+			id="agreeTos"
+			name="agreeTos"
+			class="form-control"
+			value=data.agreeTos	
+		)
+		input(type="submit" value="Finish" class="btn btn-lg btn-primary btn-block" id="finishForm" disabled)
 	script(src="/js/auto-expand.js")
 	script(src="/js/save-registerId.js")
+	script(src="/js/allow-signup-tos.js")

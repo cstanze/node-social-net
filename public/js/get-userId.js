@@ -8,6 +8,7 @@ if(localStorage.getItem("isGuest") == null || localStorage.getItem('isGuest') ==
       localStorage.setItem("isGuest", "true")
     } else {
       console.log("Register ID Present. Retrieving user id now...")
+      localStorage.getItem('isGuest', "false")
       xhr.open("GET", `/user/registerId/${localStorage.getItem('registerId')}`)
       xhr.setRequestHeader('authid', '_ax791')
       xhr.send()
